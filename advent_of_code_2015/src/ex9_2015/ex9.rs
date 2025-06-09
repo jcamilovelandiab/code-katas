@@ -57,6 +57,9 @@ fn minimum_path_from_city(
     }
 }
 
+/**
+ * Part 1
+ */
 fn calculate_min_distance(graph: HashMap<String, Vec<CityDistance>>) -> i32 {
     let mut min_distance = std::i32::MAX;
     for (city, _) in graph.iter() {
@@ -66,6 +69,49 @@ fn calculate_min_distance(graph: HashMap<String, Vec<CityDistance>>) -> i32 {
         );
     }
     min_distance
+}
+
+/**
+ * Part 2
+ */
+fn maximum_path_from_city(
+    current_city: String,
+    graph: HashMap<String, Vec<CityDistance>>,
+    mut visited: HashSet<String>,
+    distance: i32,
+) -> i32 {
+    visited.insert(current_city.clone());
+    if visited.len() == graph.len() {
+        distance
+    } else {
+        let neighbors = graph.get(current_city.as_str()).unwrap();
+        let mut max_distance = std::i32::MIN;
+        for neighbor in neighbors {
+            if !visited.contains(neighbor.city.as_str()) {
+                max_distance = std::cmp::max(
+                    max_distance,
+                    maximum_path_from_city(
+                        neighbor.city.clone(),
+                        graph.clone(),
+                        visited.clone(),
+                        distance + neighbor.distance,
+                    ),
+                );
+            }
+        }
+        max_distance
+    }
+}
+
+fn calculate_max_distance(graph: HashMap<String, Vec<CityDistance>>) -> i32 {
+    let mut max_distance = std::i32::MIN;
+    for (city, _) in graph.iter() {
+        max_distance = std::cmp::max(
+            max_distance,
+            maximum_path_from_city(city.clone(), graph.clone(), HashSet::new(), 0),
+        );
+    }
+    max_distance
 }
 
 pub fn run_ex9_2015() {
@@ -90,6 +136,9 @@ pub fn run_ex9_2015() {
         // println!("{} {} {}", edge.from, edge.to, edge.distance);
     }
 
-    let min_distance = calculate_min_distance(graph);
+    let min_distance = calculate_min_distance(graph.clone());
     println!("Min distance: {}", min_distance);
+
+    let max_distance = calculate_max_distance(graph);
+    println!("Max distance: {}", max_distance);
 }
