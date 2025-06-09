@@ -28,7 +28,7 @@ fn extract_values(str: &str) -> Edge {
     Edge { from, to, distance }
 }
 
-fn tsp(
+fn minimum_path_from_city(
     current_city: String,
     graph: HashMap<String, Vec<CityDistance>>,
     mut visited: HashSet<String>,
@@ -44,7 +44,7 @@ fn tsp(
             if !visited.contains(neighbor.city.as_str()) {
                 min_distance = std::cmp::min(
                     min_distance,
-                    tsp(
+                    minimum_path_from_city(
                         neighbor.city.clone(),
                         graph.clone(),
                         visited.clone(),
@@ -55,6 +55,17 @@ fn tsp(
         }
         min_distance
     }
+}
+
+fn calculate_min_distance(graph: HashMap<String, Vec<CityDistance>>) -> i32 {
+    let mut min_distance = std::i32::MAX;
+    for (city, _) in graph.iter() {
+        min_distance = std::cmp::min(
+            min_distance,
+            minimum_path_from_city(city.clone(), graph.clone(), HashSet::new(), 0),
+        );
+    }
+    min_distance
 }
 
 pub fn run_ex9_2015() {
@@ -76,15 +87,9 @@ pub fn run_ex9_2015() {
                 city: edge.from.clone(),
                 distance: edge.distance,
             });
-        println!("{} {} {}", edge.from, edge.to, edge.distance);
+        // println!("{} {} {}", edge.from, edge.to, edge.distance);
     }
 
-    let mut min_distance = std::i32::MAX;
-    for (city, _) in graph.iter() {
-        min_distance = std::cmp::min(
-            min_distance,
-            tsp(city.clone(), graph.clone(), HashSet::new(), 0),
-        );
-    }
+    let min_distance = calculate_min_distance(graph);
     println!("Min distance: {}", min_distance);
 }
